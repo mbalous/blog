@@ -2,13 +2,15 @@
 #### Posted May 2nd, 01:01 AM
 
 ### Intro
-Many of the ideas I've been playing around with lately are of the distributed, secure & networked kind. Since distributed asynchronous networks are tricky beasts, I want to leverage the existing network of such nature commonly known as email. This quest has led me to some of the hardest to find and buggiest libraries I have ever come across. Either IMAP & SMTP are tricky as hell to get right or there is some kind of mass psychosis going on, I never felt like dipping appendages into that tar pit enough to tell. The two solid implementations I have found are in the standard libraries of Java & Python.
+Many of the ideas I've been playing around with lately are of the distributed, secure & networked kind. Since distributed asynchronous networks are tricky beasts, I want to leverage the existing network of such nature commonly known as email. This quest has led me to some of the hardest to find and buggiest libraries I have ever come across. Either IMAP & SMTP are tricky as hell to get right or there is some kind of mass-psychosis going on, I never felt like dipping appendages into that tar pit enough to tell. The two solid implementations I have found are in the standard libraries of Java & Python.
 
 ### Golang
 This time around I was trying to get [an idea](https://github.com/andreas-gone-wild/snackis) up and running in Golang. The usually excellent library support is one of the reasons I went with Golang to begin with, but when it comes to email I might as well have been coding in JavaScript. Writing the whole application in Python is out, big Python code-bases have the structural integrity of Jello from my experience; and Java goes too far the other way. No, Golang it is.
 
 ### The epiphany
-After tearing most of my hair out trying to get something working within Golang, I started looking at calling external code instead; and gradually it dawned on me that writing two tiny servers in Python, one for SMTP and one for IMAP; and remote controlling them via ```stdin```/```stdout``` isn't such a bad trade. The Python solution ended up taking about the same amount of space as the non-working Golang code with glue included. And it performs better than the naive one-connection-per-request strategy that was all I could get semi-working in Golang, with room to grow. And as an added bonus I now have in my posession a portable solution for the email problem, which will make my life a lot easier. Included below are the two tiny Python servers and the Golang glue-code used to drive them.
+After tearing most of my hair out trying to get something working within Golang, I started looking at calling external code instead; and gradually it dawned on me that writing two tiny servers in Python, one for SMTP and one for IMAP; and remote controlling them via ```stdin``` / ```stdout``` isn't such a bad trade. The Python solution ended up taking about the same amount of code as the non-working Golang version, with glue included. And it performs better than the naive one-connection-per-request strategy that was all I could get semi-working in Golang, with room to grow. And as an added bonus I now have in my posession a portable solution for the email problem, which will make my life a lot easier. Included below are the two tiny Python servers and the Golang glue-code used to drive them.
+
+### imap.py
 
 ```
 import json
@@ -38,20 +40,20 @@ while True:
             msg = message_from_string(raw[0][1].decode('utf-8'))
             subj = decode_header(msg['Subject'])[0][0]
     
-            print(json.dumps({
+            json.dump({
                 'Id': subj[len(TAG)+1:],
                 'SentBy': decode_header(msg['From'])[0][0],
                 'Body': msg.get_payload()
-            }))
+            }, stdout)
             
             if imap.uid('COPY', uid, TAG)[0] == 'OK':
                 imap.uid('STORE', uid , '+FLAGS', '(\Deleted)')
         except Exception as e:
-            print(json.dumps({'Error': e.message}))
+            json.dump({'Error': e.message}, stdout)
 
         stdout.flush()
     
-    print(json.dumps({'Error': 'done'}))
+    json.dump({'Error': 'done'}, stdout)
     stdout.flush()
     imap.expunge()
 
@@ -59,43 +61,7 @@ imap.close()
 imap.logout()
 ```
 
-```
-import json
-
-from email.mime.text import MIMEText
-from smtplib import SMTP
-from sys import argv, stdin, stdout
-
-TAG = '__SNACKIS__'
-
-SERVER, PORT, USER, PASSWORD = argv[1:]
-
-smtp = SMTP(SERVER, int(PORT))
-smtp.starttls()
-smtp.login(USER, PASSWORD)
-
-while True:
-    cmd = json.loads(stdin.readline())
-
-    if cmd == 'quit':
-        break
-
-    try:
-        msg = MIMEText(cmd['Body'])
-        msg['From'] = cmd['SentBy']
-        msg['To'] = cmd['SentTo']
-        msg['Subject'] = '{0} {1}'.format(TAG, cmd['Id'])
-    
-        smtp.sendmail(cmd['SentBy'], [cmd['SentTo']], msg.as_string())
-        
-        print("")
-    except Exception as e:
-        print(e.message)
-    
-    stdout.flush()
-
-smtp.quit()
-```
+### imap.go
 
 ```
 package imap
@@ -183,6 +149,48 @@ func (self *Proc) Stop() (err error) {
 	return nil
 }
 ```
+
+### smtp.py
+
+```
+import json
+
+from email.mime.text import MIMEText
+from smtplib import SMTP
+from sys import argv, stdin, stdout
+
+TAG = '__SNACKIS__'
+
+SERVER, PORT, USER, PASSWORD = argv[1:]
+
+smtp = SMTP(SERVER, int(PORT))
+smtp.starttls()
+smtp.login(USER, PASSWORD)
+
+while True:
+    cmd = json.loads(stdin.readline())
+
+    if cmd == 'quit':
+        break
+
+    try:
+        msg = MIMEText(cmd['Body'])
+        msg['From'] = cmd['SentBy']
+        msg['To'] = cmd['SentTo']
+        msg['Subject'] = '{0} {1}'.format(TAG, cmd['Id'])
+    
+        smtp.sendmail(cmd['SentBy'], [cmd['SentTo']], msg.as_string())
+        
+        print("")
+    except Exception as e:
+        print(e.message)
+    
+    stdout.flush()
+
+smtp.quit()
+```
+
+### smtp.go
 
 ```
 package smtp
