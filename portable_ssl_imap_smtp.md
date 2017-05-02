@@ -8,9 +8,12 @@ Many of the ideas I've been playing around with lately are of the distributed, s
 This time around I was trying to get [an idea](https://github.com/andreas-gone-wild/snackis) up and running in Golang. The usually excellent library support is one of the reasons I went with Golang to begin with, but when it comes to email I might as well have been coding in JavaScript. Writing the whole application in Python is out, big Python code-bases have the structural integrity of Jello from my experience; and Java goes too far the other way. No, Golang it is.
 
 ### The epiphany
-After tearing most of my hair out trying to get something working within Golang, I started looking at calling external code instead; and gradually it dawned on me that writing two tiny servers in Python, one for SMTP and one for IMAP; and remote controlling them via ```stdin``` / ```stdout``` should be possible. The Python solution ended up taking about the same amount of code as the non-working Golang version, with glue included. And it performs better than the naive one-connection-per-request strategy that was all I could get semi-working in Golang, with room to grow. And as an added bonus I now have in my posession a portable solution for the email problem, which will make my life a lot easier. Included below are the two tiny Python servers and the Golang glue-code used to drive them.
+After tearing most of my hair out trying to get something working within Golang, I started looking at calling external code instead; and gradually it dawned on me that writing two tiny servers in Python, one for SMTP and one for IMAP; and remote controlling them via ```stdin``` / ```stdout``` should be possible. The Python solution ended up taking about the same amount of code as the non-working Golang version, with glue included. And it performs better than the naive one-connection-per-request strategy that was all I could get semi-working in Golang, with room to grow. And as an added bonus I now have in my posession a portable solution for the email problem, which will make my life a lot easier. 
 
-### imap.py
+### The code
+Included below are the two tiny Python servers and the Golang glue-code used to drive them. The communication protocol is kept as simple as possible by using lines of text where possible and json objects where needed.
+
+#### imap.py
 
 ```
 import json
@@ -45,15 +48,17 @@ while True:
                 'SentBy': decode_header(msg['From'])[0][0],
                 'Body': msg.get_payload()
             }, stdout)
+            print("")
             
             if imap.uid('COPY', uid, TAG)[0] == 'OK':
                 imap.uid('STORE', uid , '+FLAGS', '(\Deleted)')
         except Exception as e:
             json.dump({'Error': e.message}, stdout)
+	    print("")
 
         stdout.flush()
     
-    json.dump({'Error': 'done'}, stdout)
+    print("")
     stdout.flush()
     imap.expunge()
 
@@ -61,12 +66,13 @@ imap.close()
 imap.logout()
 ```
 
-### imap.go
+#### imap.go
 
 ```
 package imap
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -77,7 +83,7 @@ import (
 type Proc struct {
 	Cmd *exec.Cmd
 	In io.Writer
-	Json *json.Decoder
+	Out *bufio.Reader
 }
 
 type Msg struct {
@@ -109,7 +115,7 @@ func Start(server string, port int, user, password string) (proc *Proc, err erro
 		return nil, err
 	}
 
-	proc.Json = json.NewDecoder(out)
+	proc.Out = bufio.NewReader(out)
 	return proc, nil
 }
 
@@ -118,22 +124,25 @@ func (self *Proc) Fetch() (msgs []*Msg, err error) {
 		return nil, err
 	}
 
-	for self.Json.More() {
-		msg := new(Msg)
-			
-		if err = self.Json.Decode(msg); err != nil {
-			msg.Error = fmt.Sprintf(
-				"Failed decoding json: %v",
-				err)
+	for true {
+		var data []byte
+		if data, err = self.Out.ReadBytes('\n'); err != nil {
+			return nil, fmt.Errorf("Failed to read result: %v", err)
 		}
-		
-		if msg.Error == "done" {
+
+		if len(data) == 1 {
 			break
 		}
 		
-		msgs = append(msgs, msg)
-	}
+		msg := new(Msg)
 
+		if err = json.Unmarshal(data, msg); err != nil {
+			return nil, fmt.Errorf("Failed to unmarshal msg: %v", err)
+		}
+
+		msgs = append(msgs, msg)		
+	}
+	
 	return msgs, nil
 }
 
@@ -150,7 +159,7 @@ func (self *Proc) Stop() (err error) {
 }
 ```
 
-### smtp.py
+#### smtp.py
 
 ```
 import json
@@ -190,7 +199,7 @@ while True:
 smtp.quit()
 ```
 
-### smtp.go
+#### smtp.go
 
 ```
 package smtp
@@ -208,7 +217,7 @@ import (
 type Proc struct {
 	Cmd *exec.Cmd
 	Out *bufio.Reader
-	In io.Writer
+	In *json.Encoder
 }
 
 type Msg struct {
@@ -225,10 +234,12 @@ func Start(server string, port int, user, password string) (proc *Proc, err erro
 		user,
 		password)
 
-	if proc.In, err = proc.Cmd.StdinPipe(); err != nil {
+	var in io.Writer
+	if in, err = proc.Cmd.StdinPipe(); err != nil {
 		return nil, fmt.Errorf("Failed to get imap stdin: %v", err)
 	}
 
+	proc.In = json.NewEncoder(in)
 	var out io.Reader
 	
 	if out, err = proc.Cmd.StdoutPipe(); err != nil {
@@ -245,22 +256,14 @@ func Start(server string, port int, user, password string) (proc *Proc, err erro
 }
 
 func (self *Proc) Send(msg *Msg) (err error) {
-	var js []byte
-
-	if js, err = json.Marshal(msg); err != nil {
-		return fmt.Errorf("Failed to marshal msg to json: %v", err)
-	}
-
-	js = append(js, '\n')
-	
-	if _, err = self.In.Write(js); err != nil {
-		return fmt.Errorf("Failed to write json to proc: %v", err)
+	if err = self.In.Encode(msg); err != nil {
+		return fmt.Errorf("Failed to encode json: %v", err)
 	}
 
 	var res string
 	
 	if res, err = self.Out.ReadString('\n'); err != nil {
-		return fmt.Errorf("Failed to read result from proc: %v", err)
+		return fmt.Errorf("Failed to read result: %v", err)
 	}
 
 	if res != "\n" {
@@ -271,7 +274,7 @@ func (self *Proc) Send(msg *Msg) (err error) {
 }
 
 func (self *Proc) Stop() (err error) {
-	if _, err = self.In.Write([]byte("\"quit\"\n")); err != nil {
+	if err = self.In.Encode("quit"); err != nil {
 		return fmt.Errorf("Failed to send quit command: %v", err)
 	}
 
