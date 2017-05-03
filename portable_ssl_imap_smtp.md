@@ -1,5 +1,5 @@
-# Portable SSL-enabled IMAP & SMTP
-#### Posted May 2nd, 01:01 AM
+# Sending Email From Go using Python
+#### Posted May 3rd, 04:26 PM
 
 ### Intro
 Many of the ideas I've been playing around with lately are of the distributed, secure & networked kind. Since distributed asynchronous networks are tricky beasts, I want to leverage the existing network of such nature commonly known as email. This quest has led me to some of the hardest to find and buggiest libraries I have ever come across. Either IMAP & SMTP are tricky as hell to get right or there is some kind of mass-psychosis going on, I never felt like dipping appendages into that tar pit enough to tell. The two solid implementations I have found are in the standard libraries of Java & Python.
@@ -177,10 +177,10 @@ smtp.starttls()
 smtp.login(USER, PASSWORD)
 
 while True:
-    cmd = json.loads(stdin.readline())
-
-    if cmd == 'quit':
-        break
+    cmd = stdin.readline()
+    if cmd == 'quit': break
+    
+    cmd = json.loads(cmd)
 
     try:
         msg = MIMEText(cmd['Body'])
@@ -216,8 +216,9 @@ import (
 
 type Proc struct {
 	Cmd *exec.Cmd
+	In io.Writer
+	JsonIn *json.Encoder
 	Out *bufio.Reader
-	In *json.Encoder
 }
 
 type Msg struct {
@@ -234,12 +235,11 @@ func Start(server string, port int, user, password string) (proc *Proc, err erro
 		user,
 		password)
 
-	var in io.Writer
-	if in, err = proc.Cmd.StdinPipe(); err != nil {
+	if proc.In, err = proc.Cmd.StdinPipe(); err != nil {
 		return nil, fmt.Errorf("Failed to get imap stdin: %v", err)
 	}
 
-	proc.In = json.NewEncoder(in)
+	proc.JsonIn = json.NewEncoder(proc.In)
 	var out io.Reader
 	
 	if out, err = proc.Cmd.StdoutPipe(); err != nil {
@@ -256,7 +256,7 @@ func Start(server string, port int, user, password string) (proc *Proc, err erro
 }
 
 func (self *Proc) Send(msg *Msg) (err error) {
-	if err = self.In.Encode(msg); err != nil {
+	if err = self.JsonIn.Encode(msg); err != nil {
 		return fmt.Errorf("Failed to encode json: %v", err)
 	}
 
@@ -274,7 +274,7 @@ func (self *Proc) Send(msg *Msg) (err error) {
 }
 
 func (self *Proc) Stop() (err error) {
-	if err = self.In.Encode("quit"); err != nil {
+	if _, err = self.In.Write([]byte("quit\n")); err != nil {
 		return fmt.Errorf("Failed to send quit command: %v", err)
 	}
 
