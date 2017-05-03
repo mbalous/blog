@@ -1,4 +1,4 @@
-# Processing Email in Go using Python
+# Solid IMAP & SMTP in Go using Python
 #### Posted May 3rd, 04:26 PM
 
 ### Intro
