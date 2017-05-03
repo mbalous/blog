@@ -4,14 +4,14 @@
 ### Intro
 Many of the ideas I've been playing around with lately are of the distributed, secure & networked kind. Since distributed asynchronous networks are tricky beasts, I want to leverage the existing network of such nature commonly known as email. This quest has led me to some of the hardest to find and buggiest libraries I have ever come across. Either IMAP & SMTP are tricky as hell to get right or there is some kind of mass-psychosis going on, I never felt like dipping appendages into that tar pit enough to tell. The two solid implementations I have found are in the standard libraries of Java & Python.
 
-### Golang
-This time around I was trying to get [an idea](https://github.com/andreas-gone-wild/snackis) up and running in Golang. The usually excellent library support is one of the reasons I went with Golang to begin with, but when it comes to email I might as well have been coding in JavaScript. Writing the whole application in Python is out, big Python code-bases have the structural integrity of Jello from my experience; and Java goes too far the other way. No, Golang it is.
+### Go
+This time around I was trying to get [an idea](https://github.com/andreas-gone-wild/snackis) up and running in Go. The usually excellent library support is one of the reasons I went with Go to begin with, but when it comes to email I might as well have been coding in JavaScript. Writing the whole application in Python is out, big Python code-bases have the structural integrity of Jello from my experience; and Java goes too far the other way. No, Go it is.
 
 ### Epiphany
-After tearing most of my hair out trying to get something working within Golang, I started looking at calling external code instead; and gradually it dawned on me that writing two tiny servers in Python, one for SMTP and one for IMAP; and remote controlling them via ```stdin``` / ```stdout``` should be possible. The Python solution ended up taking about the same amount of code as the non-working Golang version, with glue included. And it performs better than the naive one-connection-per-request strategy that was all I could get semi-working in Golang, with room to grow. And as an added bonus I now have in my posession a portable solution for the email problem, which will make my life a lot easier. 
+After tearing most of my hair out trying to get something working within Go, I started looking at calling external code instead; and gradually it dawned on me that writing two tiny servers in Python, one for SMTP and one for IMAP; and remote controlling them via ```stdin``` / ```stdout``` should be possible. The Python solution ended up taking about the same amount of code as the non-working Go version, with glue included. And it performs better than the naive one-connection-per-request strategy that was all I could get semi-working in Go, with room to grow. And as an added bonus I now have in my posession a portable solution for the email problem, which will make my life a lot easier. 
 
 ### Code
-Included below are the two tiny Python servers and the Golang glue-code used to drive them. The communication protocol is kept as simple as possible by using lines of text where possible and json objects where needed.
+Included below are the two tiny Python servers and the Go glue-code used to drive them. The communication protocol is kept as simple as possible by using lines of text where possible and json objects where needed.
 
 #### imap.py
 
