@@ -1,4 +1,4 @@
-# Sending Email From Go using Python
+# Processing Email in Go using Python
 #### Posted May 3rd, 04:26 PM
 
 ### Intro
