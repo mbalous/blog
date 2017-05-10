@@ -1,12 +1,12 @@
 # Introducing Snackis
 #### Posted May 9th, 2:50 PM
 
-![inbox example](https://github.com/andreas-gone-wild/snackis/tree/master/images/inbox.png?raw=true)
+![inbox example](images/inbox.png?raw=true)
 
 ### Snackis
 [Snackis](https://github.com/andreas-gone-wild/snackis) is the latest and by far most substantial iteration of an idea I've been working on in one form or other over the last 30 years. A distributed and secure social network that uses existing email infrastructure as transport, cuts enough corners to make the experience seemless and adds more elaborate abstractions on top. [Snackis](https://github.com/andreas-gone-wild/snackis) stores all data locally in encrypted form and comes with a convenient, hacker-friendly text UI and first-class support for offline use. It is completely self-contained and may be put on a USB-stick for instant secure messaging wherever you are. All functionality offered by the UI is also available through the Golang API.
 
-![invite email example](https://github.com/andreas-gone-wild/snackis/tree/master/images/invite_email.png?raw=true)
+![invite email example](images/invite_email.png?raw=true)
 
 ### Status
 This announcement is intended as a preview. The functionality needed for a minimum viable program is operational, but plenty of testing remains before I'm willing to commit to any kind of compatibility. Minimum viable in this context means support for invites and group-/private discussions. [Snackis](https://github.com/andreas-gone-wild/snackis) uses Python3's mature email libraries and great care has been taken to not interfere with the normal email flow; all messages sent from [Snackis](https://github.com/andreas-gone-wild/snackis) are tagged with ```___SNACKIS___``` and processed messages are moved to a folder with the same name to keep the normal inbox tidy. You may find preliminary documentation and screen shots [here](https://github.com/andreas-gone-wild/snackis).
