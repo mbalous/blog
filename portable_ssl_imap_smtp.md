@@ -1,5 +1,5 @@
 # Solid IMAP & SMTP in Go using Python
-#### Posted May 3rd, 04:26 PM
+#### Posted May 3rd, 4:26 PM
 
 ### Intro
 Many of the ideas I've been playing around with lately are of the distributed, secure & networked kind. Since distributed asynchronous networks are tricky beasts, I want to leverage the existing network of such nature commonly known as email. This quest has led me to some of the hardest to find and buggiest libraries I have ever come across. Either IMAP & SMTP are tricky as hell to get right or there is some kind of mass-psychosis going on, I never felt like dipping appendages into that tar pit enough to tell. The two solid implementations I have found are in the standard libraries of Java & Python.
@@ -34,6 +34,8 @@ imap.select('INBOX')
 
 while True:
     if stdin.readline().strip() == "quit": break
+
+    imap.check()
     _, data = imap.uid('SEARCH', None, '(HEADER Subject "{0}")'.format(TAG))
 
     for uid in data[0].split():
