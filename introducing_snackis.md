@@ -9,7 +9,7 @@
 ![inbox example](images/inbox.png?raw=true)
 
 ### Status
-This is intended as a preview; the functionality needed for a minimum viable program is operational, but plenty of testing remains before I'm willing to commit to any kind of compatibility. Minimum viable in this context means support for invites and group-/private discussions. [Snackis](https://github.com/andreas-gone-wild/snackis) uses Python3's mature email libraries and great care has been taken to not interfere with the normal email flow; all messages sent from [Snackis](https://github.com/andreas-gone-wild/snackis) are tagged with ```___SNACKIS___``` and processed messages are moved to a folder with the same name to keep the normal inbox tidy. You may find preliminary documentation and more screen shots [here](https://github.com/andreas-gone-wild/snackis).
+This is intended as a preview; the functionality needed for a minimum viable program is operational, but plenty of testing remains before I'm willing to commit to any kind of compatibility. Minimum viable in this context means support for invites and group-/private discussions. [Snackis](https://github.com/andreas-gone-wild/snackis) uses Python3's mature email libraries and great care has been taken to not interfere with the normal email flow; all messages sent from [Snackis](https://github.com/andreas-gone-wild/snackis) are tagged with ```___SNACKIS___``` and processed messages are moved to a folder with the same name to keep the normal inbox tidy. You may find preliminary documentation [here](https://github.com/andreas-gone-wild/snackis).
 
 ![post example](images/post.png?raw=true)
 
