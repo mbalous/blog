@@ -21,10 +21,11 @@ import json
 from email import message_from_string
 from email.header import decode_header
 from imaplib import IMAP4_SSL
+from select import select
 from sys import argv, stdin, stdout
 
 TAG = '__SNACKIS__'
-
+HEARTBEAT = 10
 SERVER, PORT, USER, PASSWORD = argv[1:]
 
 imap = IMAP4_SSL(SERVER, int(PORT))
@@ -33,11 +34,16 @@ imap.create(TAG)
 imap.select('INBOX')
 
 while True:
+    input_waiting, _, _ = select([stdin], [], [], HEARTBEAT)
+    if not input_waiting:
+        imap.noop()
+        continue
+    
     if stdin.readline().strip() == "quit": break
 
     imap.check()
     _, data = imap.uid('SEARCH', None, '(HEADER Subject "{0}")'.format(TAG))
-
+        
     for uid in data[0].split():
         try:
             res, raw = imap.uid('FETCH', uid, '(RFC822)')
@@ -56,7 +62,7 @@ while True:
                 imap.uid('STORE', uid , '+FLAGS', '(\Deleted)')
         except Exception as e:
             json.dump({'Error': e.message}, stdout)
-	    print("")
+            print("")
 
         stdout.flush()
     
@@ -168,10 +174,11 @@ import json
 
 from email.mime.text import MIMEText
 from smtplib import SMTP
+from select import select
 from sys import argv, stdin, stdout
 
 TAG = '__SNACKIS__'
-
+HEARTBEAT = 10
 SERVER, PORT, USER, PASSWORD = argv[1:]
 
 smtp = SMTP(SERVER, int(PORT))
@@ -179,9 +186,13 @@ smtp.starttls()
 smtp.login(USER, PASSWORD)
 
 while True:
+    input_waiting, _, _ = select([stdin], [], [], HEARTBEAT)
+    if not input_waiting:
+        smtp.noop()
+        continue
+
     cmd = stdin.readline()
-    if cmd == 'quit': break
-    
+    if cmd.strip() == 'quit': break
     cmd = json.loads(cmd)
 
     try:
