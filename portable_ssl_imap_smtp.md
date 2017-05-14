@@ -25,7 +25,7 @@ from select import select
 from sys import argv, stdin, stdout
 
 TAG = '__SNACKIS__'
-HEARTBEAT = 10
+HEARTBEAT = 3
 SERVER, PORT, USER, PASSWORD = argv[1:]
 
 imap = IMAP4_SSL(SERVER, int(PORT))
@@ -178,7 +178,7 @@ from select import select
 from sys import argv, stdin, stdout
 
 TAG = '__SNACKIS__'
-HEARTBEAT = 10
+HEARTBEAT = 3
 SERVER, PORT, USER, PASSWORD = argv[1:]
 
 smtp = SMTP(SERVER, int(PORT))

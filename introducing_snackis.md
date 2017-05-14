@@ -15,7 +15,7 @@ This is intended as a preview; the functionality needed for a minimum viable pro
 The code needs some time to settle down after a month-long mad rush to get basic functionality in place. I have a few ideas that have been waiting for this kind of platform; distributed scheduling of shared resources to name one. What I can promise will never happen is monetization strategies, behavioural profiling, ads, binary blobs or any other kind of intrusions into your personal integrity. This one is by the people, for the people; and if you're anything like me, you're ready for something new.
 
 ### Support
-Funding, Code and/or Ideas are more than welcome. Open issues, send requests or email me at ```andreas.gone.wild@gmail.com```, and I'll do my best to follow up. If you have a few coins to spare; [this is your chance](https://www.paypal.me/c4life) to help make a positive difference; writing these kinds of systems is hard enough without having to worry about money for necessities, every contribution counts. Thank you.
+If you have a few coins to spare; [this is your chance](https://www.paypal.me/c4life) to help make a positive difference; writing these kinds of systems is hard enough without having to worry about money for necessities, every contribution counts. Thank you.
 
 Until next time; be well,<br/>
 A
