@@ -15,7 +15,7 @@ This is intended as a preview; the functionality needed for a minimum viable pro
 The code needs some time to settle down after a month-long mad rush to get basic functionality in place. I have a few ideas that have been waiting for this kind of platform; distributed scheduling of shared resources to name one. What I can promise will never happen is monetization strategies, behavioural profiling, ads, binary blobs or any other kind of intrusions into your personal integrity. This one is by the people, for the people; and if you're anything like me, you're ready for something new.
 
 ### Support
-If you have a few coins to spare, [this is your chance](https://www.paypal.me/c4life) to make a positive difference and help Snackis move forward faster. $500/month would allow me to work full-time on the project. Thank you.
+If you have a few coins to spare, [this is your chance](https://www.paypal.me/c4life) to help Snackis move forward faster. $500/month would allow me to work full-time on the project. Thank you.
 
 Until next time; be well,<br/>
 A
