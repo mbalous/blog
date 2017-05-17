@@ -7,7 +7,7 @@
 ![invite email example](images/invite_email.png?raw=true)
 
 ### Status
-This is intended as a preview; the functionality needed for a minimum viable program is operational, but plenty of testing remains. Minimum viable in this context means support for invites and group-/private discussions. Great care has been taken to not interfere with the normal email flow; all messages sent from [Snackis](https://github.com/andreas-gone-wild/snackis) are tagged and processed messages are moved to a separate folder to keep the inbox tidy. You may find preliminary documentation [here](https://github.com/andreas-gone-wild/snackis).
+This is intended as a preview; the functionality needed for a minimum viable program is operational, but plenty of testing remains. Minimum viable in this context means support for invites and group-/private discussions. All messages sent from [Snackis](https://github.com/andreas-gone-wild/snackis) are tagged with ```__SNACKIS__``` and processed messages are moved to a separate folder to keep the inbox tidy. You may find preliminary documentation [here](https://github.com/andreas-gone-wild/snackis).
 
 ![post example](images/post.png?raw=true)
 
