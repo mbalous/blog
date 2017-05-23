@@ -2,7 +2,7 @@
 #### Posted May 23rd, 7:00 PM
 
 ### Background
-I am currently in the process of porting 5 kloc [system](https://github.com/andreas-gone-wild/snackis) from Golang to C++; since it's a reasonably complex system with an integrated database-engine, encryption, networking, ui etc.; any assistance with tracking down errors is more than welcome. Like Golang, C++ doesn't provide a standard way of attaching stack traces to errors. While there are various more or less convoluted libraries floating around; I prefer a simpler, more portable approach.
+I am currently deep into the process of porting a 5-kloc [system](https://github.com/andreas-gone-wild/snackis) from Golang to C++; since it's a reasonably complex system with a custom database-engine, encryption, networking, ui etc.; any assistance with tracking down errors is more than welcome. Like Golang, C++ doesn't provide a standard way of attaching stack-traces to errors. While there are various more or less involved libraries floating around; I prefer a simpler, more portable approach.
 
 ### Traces
 Any C compiler worth it's name provides support for getting the current filename and line via the ```__FILE__``` and ```__LINE__``` macros. The code below implements a struct that represents a trace and a macro to simplify usage, RAII is used to keep a thread-local stack updated as traces are created/deleted.
@@ -56,7 +56,7 @@ std::string stack_trace() {
 ```
 
 ### Errors
-A general purpose tracing facility is usable enough by itself, but the focus of this post is dealing with errors. The ```ERROR``` macro assumes names of error types end in ```Error```.
+A general purpose tracing facility is usable enough by itself, but the focus of this post is dealing with errors. The ```ERROR``` macro traces the current stack-frame and and throws the specified error type, an ```xError``` naming convention is adopted for error-types to simplify user code.
 
 ```
 #include <stdexcept>
