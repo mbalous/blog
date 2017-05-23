@@ -5,7 +5,7 @@
 I am currently deep into the process of porting a 5-kloc [system](https://github.com/andreas-gone-wild/snackis) from Golang to C++; since it's a reasonably complex system with a custom database-engine, encryption, networking, ui etc.; any assistance with tracking down errors is more than welcome. Like Golang, C++ doesn't provide a standard way of attaching stack-traces to errors. While there are various more or less involved libraries floating around; I prefer a simpler, more portable approach.
 
 ### Traces
-Any C compiler worth it's name provides support for getting the current filename and line via the ```__FILE__``` and ```__LINE__``` macros. The code below implements a struct that represents a trace and a macro to simplify usage, RAII is used to keep a thread-local stack updated as traces are created/deleted.
+Any C compiler worth it's name provides support for getting the current filename and line via the ```__FILE__``` and ```__LINE__``` macros. The code below implements a trace struct and provides a macro to simplify user code, RAII is used to keep a thread-local stack updated as traces are allocated/freed.
 
 ```
 #include <sstream>
@@ -56,7 +56,7 @@ std::string stack_trace() {
 ```
 
 ### Errors
-A general purpose tracing facility is usable enough by itself, but the focus of this post is dealing with errors. The ```ERROR``` macro traces the current stack-frame and and throws the specified error type, an ```xError``` naming convention is adopted for error-types to simplify user code.
+A general purpose tracing-facility is usable enough in itself, but the focus of this post is adding stack-traces to errors. The ```ERROR``` macro traces the current stack-frame and and throws the specified error type, an ```xError``` naming convention is adopted for error-types to simplify user code.
 
 ```
 #include <stdexcept>
@@ -75,7 +75,7 @@ Error::Error(const std::string &msg): std::runtime_error(stack_trace() + msg) { 
 ```
 
 ### Example
-Given the facilities described above, and a custom error type:
+Given facilities described above, and a custom error type like this:
 
 ```
   struct ImapError: public Error {
