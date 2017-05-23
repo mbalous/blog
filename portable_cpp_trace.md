@@ -75,7 +75,7 @@ Error::Error(const std::string &msg): std::runtime_error(stack_trace() + msg) { 
 ```
 
 ### Example
-Given facilities described above, and a custom error type like this:
+Given the facilities described above, and a custom error type:
 
 ```
   struct ImapError: public Error {
