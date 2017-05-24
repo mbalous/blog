@@ -1,4 +1,4 @@
-# Portable stack traces in C++
+# Simple, portable stack traces in C++
 #### Posted May 23rd, 7:00 PM
 
 ### Background
