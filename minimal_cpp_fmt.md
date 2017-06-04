@@ -2,7 +2,7 @@
 #### Posted June 23rd, 7:00 AM
 
 ### Background
-The standard facilities for string formatting in C++ leaves a lot to wish for. I recently ran into a situation where I couldn't afford dragging [fmtlib](https://github.com/fmtlib/fmt) around, much less [boost::format](http://www.boost.org/doc/libs/1_64_0/libs/format/). What I'm looking for is a type-safe tool to simplify specifying the overall layout of a string with support for escaping the parser. This post describes a minimal implementation of that idea in C++1z.
+The standard facilities for string formatting in C++ leaves a lot to wish for. I recently ran into a situation where I couldn't afford dragging [fmtlib](https://github.com/fmtlib/fmt) around, much less [boost::format](http://www.boost.org/doc/libs/1_64_0/libs/format/). What I'm looking for is a type-safe tool to simplify specifying the overall layout of a string with support for escaping the parser and plugging in custom formats for specific types. This post describes a minimal implementation of that idea in C++1z.
 
 ### Usage
 ```
@@ -20,7 +20,7 @@ assert(fmt("%0 %1 %2", "abc", Foo(), "42") == "abc Foo 42");
 ```
 
 ### Indexing tuples
-Since one of the primary goals of the excercise is to escape operator hell without giving up type safety, I knew I would need tuples in one form or other. One major problem with tuples in C++ until recently was iteration, the situation improved somewhat in C++17 with support for variadic fold-expressions.
+Since one of the primary goals of the excercise is to escape operator hell without giving up type-safety, the first tool I reached for was tuples. One major problem with tuples in C++ until recently was iteration, the situation improved somewhat in C++17 with support for variadic fold-expressions. There's no reason in my mind why something comparable to the code below couldn't be included in future standards.
 
 ```
 template <typename...Args, typename Func, std::size_t...Idx>
