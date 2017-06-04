@@ -20,7 +20,7 @@ assert(fmt("%0 %1 %2", "abc", Foo(), "42") == "abc Foo 42");
 ```
 
 ### Indexing tuples
-Since one of the primary goals of the excercise is to escape operator hell without giving up type safety, I knew I would need tuples in one form or other. One major problem with tuples in C++ until recently was iteration. That situation improved somewhat in C++17 with support for variadic fold-expressions. 
+Since one of the primary goals of the excercise is to escape operator hell without giving up type safety, I knew I would need tuples in one form or other. One major problem with tuples in C++ until recently was iteration, the situation improved somewhat in C++17 with support for variadic fold-expressions.
 
 ```
 template <typename...Args, typename Func, std::size_t...Idx>
@@ -46,14 +46,14 @@ template <typename T>
 std::string fmt_arg(const T &arg) { return std::to_string(arg); }
 
 template <>
-std::string fmt_arg(const char * const &arg) { return arg; }
+std::string fmt_arg(const char *const &arg) { return arg; }
 
 template <>
 std::string fmt_arg(const std::string &arg) { return arg; }
 ```
 
 ### Implementation
-Given the code above, implementing the actual formatting function is a simple matter of iterative search and replace.
+Given above code, implementing the actual formatting-function is a simple matter of iterative search and replace.
 
 ```
 template <typename...Args>
