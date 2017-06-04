@@ -1,4 +1,4 @@
-# Minimal string-formatting in C++
+# Minimal string-formatting in C++1z
 #### Posted June 23rd, 7:00 AM
 
 ### Background
