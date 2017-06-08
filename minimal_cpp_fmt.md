@@ -20,19 +20,12 @@ assert(fmt("%0 %1 %2", "abc", Foo(), "42") == "abc Foo 42");
 ```
 
 ### Indexing tuples
-Since one of the primary goals of the excercise is to escape operator hell without giving up type-safety, the first tool I reached for was tuples. One major problem with tuples in C++ until recently was iteration, the situation improved somewhat in C++1z with support for variadic fold-expressions. There's no reason in my mind why something comparable to the code below couldn't be included in future standards.
+Since one of the primary goals of the excercise is to escape operator hell without giving up type-safety, the first tool I reached for was tuples. One major problem with tuples in C++ until recently was iteration, the situation improved somewhat in C++1z but there's still no reason in my mind why something comparable to the code below couldn't be included in future standards.
 
 ```
-template <typename...Args, typename Func, std::size_t...Idx>
-void for_each(const std::tuple<Args...>& t,
-	      const Func& f,
-	      std::index_sequence<Idx...>) {
-  (f(std::get<Idx>(t)), ...);
-}
-
-template <typename...Args, typename Func>
+template <typename... Args, typename Func>
 void for_each(const std::tuple<Args...>& t, const Func& f) {
-  for_each(t, f, std::index_sequence_for<Args...>{});
+  std::apply([&f](const auto&... args) { (f(args), ...); }, t);
 }
 ```
 
