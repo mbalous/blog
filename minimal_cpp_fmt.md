@@ -20,7 +20,7 @@ assert(fmt("%0 %1 %2", "abc", Foo(), "42") == "abc Foo 42");
 ```
 
 ### Indexing tuples
-Since one of the primary goals of the excercise is to escape operator hell without giving up type-safety, the first tool I reached for was tuples. One major problem with tuples in C++ until recently was iteration, the situation improved somewhat in C++1z but there's still no reason in my mind why something comparable to the code below couldn't be included in future standards.
+Since one of the primary goals of the excercise is to escape operator hell without giving up type-safety, the first tool I reached for was tuples. One major problem with tuples in C++ until recently was iteration; the situation improved somewhat in C++1z, but there's still no reason in my mind why something comparable to the code below couldn't be included in future standards.
 
 ```
 template <typename... Args, typename Func>
@@ -78,7 +78,7 @@ std::string fmt(const std::string &in, Args..._args) {
 ```
 
 ### Mind the gap
-The implementation described here skips on what many would consider essential features, such as detecting unused / missing arguments and extended formatting directives. These are left as excercises for someone else as this is all I have time for right now. A side-effect of letting provided arguments drive the formatting-loop is that the input-string has to be scanned once per argument, this may be to slow for performance-sensitive code with long specifications and/or many arguments.
+The implementation described here skips on what many would consider essential features, such as detecting unused / missing arguments and extended formatting directives. These are left as excercises for someone else as this is all I have time for right now. A side-effect of letting provided arguments drive the formatting-loop is that the specification has to be scanned once per argument, this may be to slow for performance-sensitive code with long specifications and/or many arguments.
 
 Until next time; be well,<br/>
 A
