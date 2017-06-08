@@ -20,7 +20,7 @@ assert(fmt("%0 %1 %2", "abc", Foo(), "42") == "abc Foo 42");
 ```
 
 ### Indexing tuples
-Since one of the primary goals of the excercise is to escape operator hell without giving up type-safety, the first tool I reached for was tuples. One major problem with tuples in C++ until recently was iteration, the situation improved somewhat in C++17 with support for variadic fold-expressions. There's no reason in my mind why something comparable to the code below couldn't be included in future standards.
+Since one of the primary goals of the excercise is to escape operator hell without giving up type-safety, the first tool I reached for was tuples. One major problem with tuples in C++ until recently was iteration, the situation improved somewhat in C++1z with support for variadic fold-expressions. There's no reason in my mind why something comparable to the code below couldn't be included in future standards.
 
 ```
 template <typename...Args, typename Func, std::size_t...Idx>
@@ -37,7 +37,7 @@ void for_each(const std::tuple<Args...>& t, const Func& f) {
 ```
 
 ### Formatting arguments
-A generic function is provided to customize formatting for arguments of a specific type; unless the argument is already a string, the default implementation delegates to ```std::to_string```;
+A generic function is provided to customize formatting for arguments of a specific type; unless the argument is already a string, the default implementation delegates to ```std::to_string```.
 
 ```
 #include <string>
