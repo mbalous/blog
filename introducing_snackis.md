@@ -2,7 +2,7 @@
 #### Posted May 17th, 3:00 PM
 
 ### Snackis
-[Snackis](https://github.com/andreas-gone-wild/snackis) is the latest and by far most substantial iteration of an idea I've been working on in one form or other over the last 30 years. A distributed and secure social network that uses existing email infrastructure as transport, cuts enough corners to make the experience seemless and adds more elaborate abstractions on top. [Snackis](https://github.com/andreas-gone-wild/snackis) stores all data locally in encrypted form and comes with a convenient text-based interface. The software is completely self-contained and may be put on a USB-stick for instant secure messaging wherever you are. All functionality offered by the UI is also available through the Golang API.
+[Snackis](https://github.com/andreas-gone-wild/snackis) is the latest and by far most substantial iteration of an idea I've been working on in one form or other over the last 30 years. A distributed and secure social network that uses existing email infrastructure as transport, cuts enough corners to make the experience seemless and adds more elaborate abstractions on top. [Snackis](https://github.com/andreas-gone-wild/snackis) stores all data locally in encrypted form and comes with a convenient graphical interface. The software is completely self-contained and may be put on a USB-stick for instant secure messaging wherever you are. All functionality offered by the UI is also available through the Golang API.
 
 ![invite email example](images/invite_email.png?raw=true)
 
