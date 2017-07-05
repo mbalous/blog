@@ -17,10 +17,5 @@ The new UI provided enough support to finally cross the line where Snackis does 
 
 ![post example](images/post.png?raw=true)
 
-### What's Next
-Once the code settles down a bit from all the drama lately, I'm doing signed reciepts for the next iteration. Always knowing for sure if the person in the other end has received a message or not blurries the line between email and chat enough to make Snackis usable in more synchronous scenarios. 
-
-![feed search example](images/feed_search.png?raw=true)
-
 Until next time; be well,<br/>
 A
