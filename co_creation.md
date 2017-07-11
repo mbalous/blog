@@ -14,10 +14,5 @@ Projects are sets of tasks that may be shared among a set of peers. Any member m
 
 ![project example](images/project.png?raw=true)
 
-### Queues
-Queues are sets of tasks that may be shared among a set of peers. Any member may add tasks to a queue, but only the owner is allowed to modify the queue details. A single task may be an item in several queues and a single queue may hold tasks from several projects. Like projects and tasks, each queue has it's own feed where members may post messages.
-
-![task search example](images/task_search.png?raw=true)
-
 Until next time; be well,<br/>
 A
