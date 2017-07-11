@@ -9,5 +9,7 @@ While seemingly naive, this simple decision has had a decidedly positive impact 
 
 It is said that a picture is worth more than a thousand words. The [graph](https://github.com/andreas-gone-wild/snackis/graphs/code-frequency) for [Snackis](https://github.com/andreas-gone-wild/snackis) clearly shows what a living, breathing code base looks like.<br/><br/>
 
+![graph](images/mkayloc.png?raw=true)
+
 Until next time; be well,<br/>
 A
