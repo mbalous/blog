@@ -7,7 +7,7 @@ Lately, I've mostly been working by myself on my magnum opus, [Snackis](https://
 
 While seemingly naive, this simple decision has had a decidedly positive impact on my design process and code quality. I will allow the code to grow while exploring new features, and then spend as much time and effort as needed on compressing and organizing existing code to get back below the limit. Sometimes the way to get there is to remove a feature that isn't pulling it's weight, at other times several features may be refactored into a more effective abstraction. Technical debt that usually get shuffled to the end of the priority list is now a non-optional, challenging part of the design process for new features.<br/><br/>
 
-It is said that a picture is worth more than a thousand words, the [graph](https://github.com/andreas-gone-wild/snackis/graphs/code-frequency) for [Snackis](https://github.com/andreas-gone-wild/snackis) clearly shows what a living, breathing code base looks like.<br/><br/>
+It is said that a picture is worth more than a thousand words. The [graph](https://github.com/andreas-gone-wild/snackis/graphs/code-frequency) for [Snackis](https://github.com/andreas-gone-wild/snackis) clearly shows what a living, breathing code base looks like.<br/><br/>
 
 Until next time; be well,<br/>
 A
