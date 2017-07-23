@@ -79,11 +79,11 @@ Chan<int> c(MAX);
 
 assert(!get(c, false));
 
-for (int i = 0; i < MAX; i++) { CHECK(put(c, i), _); }
+for (int i = 0; i < MAX; i++) { assert(put(c, i)); }
 
 assert(!put(c, 42, false));
 
-for (int i = 0; i < MAX; i++) { CHECK(get(c), *_ == i); }
+for (int i = 0; i < MAX; i++) { assert(*get(c) == i); }
 
 assert(!get(c, false));
 assert(put(c, 42));
