@@ -2,7 +2,7 @@
 #### Posted July 18th, 11:00 AM
 
 ### Intro
-From my perspective, Channel semantics is one of the things that Go got mostly right. Luckily, comparable functionality is only a dequeue, a mutex and a pair of condition-variables away in any language. This post describes a take on that idea in 50 lines of portable C++, taken from the database I wrote for [Snackis](https://github.com/andreas-gone-wild/snackis).
+From my perspective, Channel semantics is one of the things that Go got mostly right. Luckily; comparable functionality is only a dequeue, a mutex and a pair of condition-variables away in any language. This post describes a take on that idea in 50 lines of portable C++, taken from the database I wrote for [Snackis](https://github.com/andreas-gone-wild/snackis).
 
 ### Implementation
 
