@@ -7,12 +7,17 @@ From my perspective, Channel semantics is one of the things that Go got mostly r
 ### Implementation
 
 ```
+#include <condition_variable>
+#include <deque>
+#include <mutex>
+#include <optional>
+
 template <typename T>
 struct Chan {
   const size_t max;
   std::deque<T> buf;
   std::mutex mutex;
-  opt<std::condition_variable> get_ok, put_ok;
+  std::optional<std::condition_variable> get_ok, put_ok;
   bool closed;
 
   Chan(size_t max);
@@ -87,7 +92,7 @@ close(c);
 ```
 
 ### Performance
-The implementation above is fast enough for many needs but I was still curious how it stacked up against Go. So I wrote a basic benchmark loop to get an idea. The short story is that Go is about twice as fast with LockOSThread(), and ten times as fast without.
+The implementation above is fast enough for many needs but I was still curious how it stacked up against Go, so I wrote a basic benchmark loop to get an idea. The short story is that Go 1.8 is about twice as fast.
 
 ```
 #include <vector>
