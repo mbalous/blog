@@ -7,7 +7,7 @@ From my perspective, Channel semantics is one of the things that Go got mostly r
 ### Implementation
 This implementation uses an atomic variable to enable a lock-free fast path; it's optional, but quadruples performance.
 
-```
+```cpp
 #include <atomic>
 #include <condition_variable>
 #include <mutex>
@@ -106,7 +106,7 @@ std::optional<T> get(Chan<T> &c, bool wait=true) {
 
 ### Usage
 
-```
+```cpp
 const int MAX(100);
 Chan<int> c(MAX);
 
@@ -127,7 +127,7 @@ close(c);
 ### Performance
 The implementation above is fast enough for many needs but I was still curious how it stacked up against Go, so I wrote a basic benchmark loop to get an idea. The short story is that it's about twice as fast as the built-in channels in Go 1.8.
 
-```
+```cpp
 #include <vector>
 #include <thread>
 #include "snackis/core/chan.hpp"
@@ -176,7 +176,7 @@ int main() {
 }
 ```
 
-```
+```golang
 package main
 
 import (
