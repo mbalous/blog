@@ -2,7 +2,7 @@
 #### Posted July 18th, 11:00 AM
 
 ### Intro
-From my perspective, Channel semantics is one of the things that Go got mostly right. Luckily; comparable functionality is only a dynamic array, a mutex and a couple of atomic variables away in any language. This post describes a take on that idea in 80 lines of portable C++, taken from the database I wrote for [Snackis](https://github.com/andreas-gone-wild/snackis).
+From my perspective, Channel semantics is one of the things that Go got mostly right. Luckily; comparable functionality is only a dynamic array, a mutex and a couple of atomic variables away in any language. This post describes a take on that idea in 70 lines of portable C++, taken from the database I wrote for [Snackis](https://github.com/andreas-gone-wild/snackis).
 
 ### Implementation
 This implementation uses atomic variables in combination with yielding. The same effect may be achieved using condition variables, one for putting and one for getting; but this makes the benchmark run 5 times slower.
@@ -69,11 +69,7 @@ opt<T> get(Chan<T> &c, bool wait=true) {
     }
 
     ChanLock lock(c.mutex);
-
-    if (c.pos == c.buf.size()) {
-      continue;
-    }
-      
+    if (c.pos == c.buf.size()) { continue; }
     auto out(c.buf[c.pos]);
     c.pos++;
       
