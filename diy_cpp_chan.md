@@ -7,6 +7,7 @@ From my perspective, Channel semantics is one of the things that Go got mostly r
 ### Implementation
 
 ```
+#include <atomic>
 #include <condition_variable>
 #include <mutex>
 #include <optional>
@@ -17,6 +18,7 @@ struct Chan {
   const size_t max;
   std::vector<T> buf;
   size_t pos;
+  std::atomic<size_t> size;
   std::mutex mutex;
   std::condition_variable get_ok, put_ok;
   bool closed;
@@ -28,7 +30,7 @@ using ChanLock = std::unique_lock<std::mutex>;
   
 template <typename T>
 Chan<T>::Chan(size_t max):
-  max(max), pos(0), closed(false)
+  max(max), pos(0), size(0), closed(false)
 { }
 
 template <typename T>
@@ -42,6 +44,11 @@ void close(Chan<T> &c) {
 
 template <typename T>
 bool put(Chan<T> &c, const T &it, bool wait=true) {
+  if (c.size.load() == c.max) {
+    if (!wait) { return false; }
+    while (c.size.load() == c.max) { std::this_thread::yield(); }
+  }
+
   ChanLock lock(c.mutex);
   if (c.closed) { return false; }
   
@@ -51,12 +58,18 @@ bool put(Chan<T> &c, const T &it, bool wait=true) {
 
   if (c.buf.size() == c.max) { return false; }
   c.buf.push_back(it);
+  c.size++;
   c.get_ok.notify_one();
   return true;
 }
 
 template <typename T>
 std::optional<T> get(Chan<T> &c, bool wait=true) {
+  if (c.size.load() == 0) {
+    if (!wait) { return nullopt; }
+    while (c.size.load() == 0) { std::this_thread::yield(); }
+  }
+
   ChanLock lock(c.mutex);
     
   if (wait && c.pos == c.buf.size()) {
@@ -64,7 +77,6 @@ std::optional<T> get(Chan<T> &c, bool wait=true) {
   }
     
   if (c.pos == c.buf.size()) { return nullopt; }
-  
   auto out(c.buf[c.pos]);
   c.pos++;
 
@@ -72,7 +84,8 @@ std::optional<T> get(Chan<T> &c, bool wait=true) {
     c.buf.clear();
     c.pos = 0;
   }
-  
+
+  c.size--;
   c.put_ok.notify_one();
   return out;
 }
@@ -99,7 +112,7 @@ close(c);
 ```
 
 ### Performance
-The implementation above is fast enough for many needs but I was still curious how it stacked up against Go, so I wrote a basic benchmark loop to get an idea. The short story is that Go 1.8 is about twice as fast.
+The implementation above is fast enough for many needs but I was still curious how it stacked up against Go, so I wrote a basic benchmark loop to get an idea. The short story is that this particular C++ implementation is about twice as fast as the built-in channels in Go 1.8.
 
 ```
 #include <vector>
