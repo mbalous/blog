@@ -2,20 +2,21 @@
 #### Posted July 18th, 11:00 AM
 
 ### Intro
-From my perspective, Channel semantics is one of the things that Go got mostly right. Luckily; comparable functionality is only a dequeue, a mutex and a pair of condition-variables away in any language. This post describes a take on that idea in 50 lines of portable C++, taken from the database I wrote for [Snackis](https://github.com/andreas-gone-wild/snackis).
+From my perspective, Channel semantics is one of the things that Go got mostly right. Luckily; comparable functionality is only a dynamic array, a mutex and a pair of condition-variables away in any language. This post describes a take on that idea in 60 lines of portable C++, taken from the database I wrote for [Snackis](https://github.com/andreas-gone-wild/snackis).
 
 ### Implementation
 
 ```
 #include <condition_variable>
-#include <deque>
 #include <mutex>
 #include <optional>
+#include <vector>
 
 template <typename T>
 struct Chan {
   const size_t max;
-  std::deque<T> buf;
+  std::vector<T> buf;
+  size_t pos;
   std::mutex mutex;
   std::condition_variable get_ok, put_ok;
   bool closed;
@@ -27,7 +28,7 @@ using ChanLock = std::unique_lock<std::mutex>;
   
 template <typename T>
 Chan<T>::Chan(size_t max):
-  max(max), closed(false)
+  max(max), pos(0), closed(false)
 { }
 
 template <typename T>
@@ -58,13 +59,20 @@ template <typename T>
 std::optional<T> get(Chan<T> &c, bool wait=true) {
   ChanLock lock(c.mutex);
     
-  if (wait && c.buf.empty()) {
-    c.get_ok.wait(lock, [&c](){ return c.closed || !c.buf.empty(); });
+  if (wait && c.pos == c.buf.size()) {
+    c.get_ok.wait(lock, [&c](){ return c.closed || c.pos < c.buf.size(); });
   }
     
-  if (c.buf.empty()) { return nullopt; }
-  auto out(c.buf.front());
-  c.buf.pop_front();
+  if (c.pos == c.buf.size()) { return nullopt; }
+  
+  auto out(c.buf[c.pos]);
+  c.pos++;
+
+  if (c.pos == c.buf.size()) {
+    c.buf.clear();
+    c.pos = 0;
+  }
+  
   c.put_ok.notify_one();
   return out;
 }
