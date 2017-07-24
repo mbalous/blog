@@ -2,14 +2,14 @@
 #### Posted July 18th, 11:00 AM
 
 ### Intro
-From my perspective, Channel semantics is one of the things that Go got mostly right. Luckily; comparable functionality is only a dynamic array, a mutex and a pair of condition-variables away in any language. This post describes a take on that idea in 80 lines of portable C++, taken from the database I wrote for [Snackis](https://github.com/andreas-gone-wild/snackis).
+From my perspective, Channel semantics is one of the things that Go got mostly right. Luckily; comparable functionality is only a dynamic array, a mutex and an atomic counter away in any language. This post describes a take on that idea in 80 lines of portable C++, taken from the database I wrote for [Snackis](https://github.com/andreas-gone-wild/snackis).
 
 ### Implementation
-This implementation uses an atomic variable to enable a lock-free fast path through both operations; it's optional, but the benchmark below runs about four times slower without it.
+This implementation uses an atomic variable in combination with yielding. The same effect may be achieved using condition variables, one for putting and one for getting; but this makes the benchmark run 5 times slower.
+
 
 ```
 #include <atomic>
-#include <condition_variable>
 #include <mutex>
 #include <optional>
 #include <vector>
@@ -21,7 +21,6 @@ struct Chan {
   size_t pos;
   std::atomic<size_t> size;
   std::mutex mutex;
-  std::condition_variable get_ok, put_ok;
   bool closed;
 
   Chan(size_t max);
@@ -39,56 +38,54 @@ void close(Chan<T> &c) {
   ChanLock lock(c.mutex);
   assert(!c.closed);
   c.closed = true;
-  c.get_ok.notify_all();
-  c.put_ok.notify_all();
 }
 
 template <typename T>
 bool put(Chan<T> &c, const T &it, bool wait=true) {
-  if (c.size.load() == c.max) {
-    if (!wait) { return false; }
-    do { std::this_thread::yield(); } while (c.size.load() == c.max);
+  while (true) {
+    if (c.size.load() == c.max) {
+      if (!wait) { return false; }
+      std::this_thread::yield();
+      continue;
+    }
+    
+    ChanLock lock(c.mutex);
+    if (c.closed) { return false; }
+    if (c.buf.size() == c.max) { continue; }
+      
+    c.buf.push_back(it);
+    c.size++;
+    return true;
   }
-
-  ChanLock lock(c.mutex);
-  if (c.closed) { return false; }
-  
-  if (wait && c.buf.size() == c.max) {
-    c.put_ok.wait(lock, [&c](){ return c.closed || c.buf.size() < c.max; });
-  }
-
-  if (c.buf.size() == c.max) { return false; }
-  c.buf.push_back(it);
-  c.size++;
-  c.get_ok.notify_one();
-  return true;
 }
 
 template <typename T>
-std::optional<T> get(Chan<T> &c, bool wait=true) {
-  if (c.size.load() == 0) {
-    if (!wait) { return nullopt; }
-    do { std::this_thread::yield(); } while (c.size.load() == 0);
-  }
+opt<T> get(Chan<T> &c, bool wait=true) {
+  while (true) {
+    if (c.size.load() == 0) {
+      if (!wait) { return nullopt; }
+      std::this_thread::yield();
+      continue;
+    }
 
-  ChanLock lock(c.mutex);
-    
-  if (wait && c.pos == c.buf.size()) {
-    c.get_ok.wait(lock, [&c](){ return c.closed || c.pos < c.buf.size(); });
-  }
-    
-  if (c.pos == c.buf.size()) { return nullopt; }
-  auto out(c.buf[c.pos]);
-  c.pos++;
+    ChanLock lock(c.mutex);
 
-  if (c.pos == c.buf.size()) {
-    c.buf.clear();
-    c.pos = 0;
+    if (c.pos == c.buf.size()) {
+      if (c.closed) { return nullopt; }
+      continue;
+    }
+      
+    auto out(c.buf[c.pos]);
+    c.pos++;
+      
+    if (c.pos == c.buf.size()) {
+      c.buf.clear();
+      c.pos = 0;
+    }
+      
+    c.size--;
+    return out;
   }
-
-  c.size--;
-  c.put_ok.notify_one();
-  return out;
 }
 ```
 
@@ -113,7 +110,7 @@ close(c);
 ```
 
 ### Performance
-The implementation above is fast enough for many needs but I was still curious how it stacked up against Go, so I wrote a basic benchmark loop to get an idea. The short story is that this particular C++ implementation is about twice as fast as the built-in channels in Go 1.8.
+The implementation above is fast enough for many needs but I was still curious how it stacked up against Go, so I wrote a basic benchmark loop to get an idea. The short story is that this particular C++ implementation is more than twice as fast as the built-in channels in Go 1.8 for the benchmark below.
 
 ```
 #include <vector>
