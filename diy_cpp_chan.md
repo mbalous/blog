@@ -2,10 +2,10 @@
 #### Posted July 18th, 11:00 AM
 
 ### Intro
-From my perspective, Channel semantics is one of the things that Go got mostly right. Luckily; comparable functionality is only a dynamic array, a mutex and an atomic counter away in any language. This post describes a take on that idea in 80 lines of portable C++, taken from the database I wrote for [Snackis](https://github.com/andreas-gone-wild/snackis).
+From my perspective, Channel semantics is one of the things that Go got mostly right. Luckily; comparable functionality is only a dynamic array, a mutex and a couple of atomic variables away in any language. This post describes a take on that idea in 80 lines of portable C++, taken from the database I wrote for [Snackis](https://github.com/andreas-gone-wild/snackis).
 
 ### Implementation
-This implementation uses an atomic variable in combination with yielding. The same effect may be achieved using condition variables, one for putting and one for getting; but this makes the benchmark run 5 times slower.
+This implementation uses atomic variables in combination with yielding. The same effect may be achieved using condition variables, one for putting and one for getting; but this makes the benchmark run 5 times slower.
 
 
 ```
@@ -21,7 +21,7 @@ struct Chan {
   size_t pos;
   std::atomic<size_t> size;
   std::mutex mutex;
-  bool closed;
+  std::atomic<bool> closed;
 
   Chan(size_t max);
 };
@@ -36,34 +36,35 @@ Chan<T>::Chan(size_t max):
 template <typename T>
 void close(Chan<T> &c) {    
   ChanLock lock(c.mutex);
-  assert(!c.closed);
-  c.closed = true;
+  assert(!c.closed.load());
+  c.closed.store(true);
 }
 
 template <typename T>
 bool put(Chan<T> &c, const T &it, bool wait=true) {
   while (true) {
     if (c.size.load() == c.max) {
-      if (!wait) { return false; }
+      if (!wait || c.closed.load()) { break; }
       std::this_thread::yield();
       continue;
     }
     
     ChanLock lock(c.mutex);
-    if (c.closed) { return false; }
     if (c.buf.size() == c.max) { continue; }
       
     c.buf.push_back(it);
     c.size++;
     return true;
   }
+
+  return false;
 }
 
 template <typename T>
 opt<T> get(Chan<T> &c, bool wait=true) {
   while (true) {
     if (c.size.load() == 0) {
-      if (!wait) { return nullopt; }
+      if (!wait || c.closed.load()) { break; }
       std::this_thread::yield();
       continue;
     }
@@ -71,7 +72,6 @@ opt<T> get(Chan<T> &c, bool wait=true) {
     ChanLock lock(c.mutex);
 
     if (c.pos == c.buf.size()) {
-      if (c.closed) { return nullopt; }
       continue;
     }
       
@@ -86,6 +86,8 @@ opt<T> get(Chan<T> &c, bool wait=true) {
     c.size--;
     return out;
   }
+
+  return nullopt;
 }
 ```
 
