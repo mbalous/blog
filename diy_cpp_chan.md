@@ -112,7 +112,7 @@ close(c);
 ```
 
 ### Performance
-The implementation above is fast enough for many needs but I was still curious how it stacked up against Go, so I wrote a basic benchmark loop to get an idea. The short story is that this particular C++ implementation is more than twice as fast as the built-in channels in Go 1.8 for the benchmark below.
+The implementation above is fast enough for many needs but I was still curious how it stacked up against Go, so I wrote a basic benchmark loop to get an idea. The short story is that it's more than twice as fast as the built-in channels in Go 1.8 for the benchmark below.
 
 ```
 #include <vector>
