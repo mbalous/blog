@@ -50,8 +50,7 @@ bool put(Chan<T> &c, const T &it, bool wait=true) {
     }
     
     ChanLock lock(c.mutex);
-    if (c.buf.size() == c.max) { continue; }
-      
+    if (c.buf.size() == c.max) { continue; }      
     c.buf.push_back(it);
     c.size++;
     return true;
