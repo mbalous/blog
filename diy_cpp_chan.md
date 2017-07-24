@@ -2,7 +2,7 @@
 #### Posted July 18th, 11:00 AM
 
 ### Intro
-From my perspective, Channel semantics is one of the things that Go got mostly right. Luckily; comparable functionality is only a dynamic array, a mutex and a couple of atomic variables away in any language. This post describes a take on that idea in 70 lines of portable C++, taken from the database I wrote for [Snackis](https://github.com/andreas-gone-wild/snackis).
+From my perspective, Channel semantics is one of the things that Go got mostly right. Luckily; comparable functionality is only a dynamic array, a mutex and a couple of atomic variables away in any language. This post describes a take on that idea in 70 lines of portable C++, from the database I wrote for [Snackis](https://github.com/andreas-gone-wild/snackis).
 
 ### Implementation
 This implementation uses atomic variables in combination with yielding. The same effect may be achieved using condition variables, one for putting and one for getting; only around 5 times slower.
@@ -106,7 +106,7 @@ close(c);
 ```
 
 ### Performance
-The implementation above is fast enough for many needs but I was still curious how it stacked up against Go, so I wrote a basic benchmark loop to get an idea. The short story is that it's more than twice as fast as the built-in channels in Go 1.8 for the benchmark below.
+The implementation above is fast enough for many needs but I was still curious how it stacked up against Go, so I wrote a basic benchmark loop to get an idea. The short story is that it's more than twice as fast as the built-in channels in Go 1.8.
 
 ```
 #include <vector>
